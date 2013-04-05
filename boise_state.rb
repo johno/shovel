@@ -8,6 +8,7 @@ module Shovel
     @base_url = 'http://events.boisestate.edu'
     
     def self.scrape options = {}
+      events = []
       page = Nokogiri::HTML open @base_url
       page.css('.upcoming_events').each do |event|
         
@@ -24,10 +25,11 @@ module Shovel
         params[:bs_id] = params[:title].gsub(/\s+/, '')
         
         unless params.blank?
-          event = Event.new params
-          event.save if event.valid?
+          events << Event.new params
         end
       end
+      
+      events
     end
     
     def self.strip_date event

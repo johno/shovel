@@ -8,7 +8,7 @@ module Shovel
     @base_url = 'http://www.boiseweekly.com/boise/EventSearch?narrowByDate='
     
     def self.scrape options = {}
-      
+      events = []
       sub_url = case options[:when]
                 when :today then 'Today'
                 when :next_week then 'Next%207%20Days' 
@@ -38,10 +38,11 @@ module Shovel
         end
         
         unless event_params.blank?
-          event = Event.new event_params
-          event.save if event.valid?
+          events << Event.new event_params
         end
       end
+      
+      events
     end
     
     def self.strip_oid event_href
