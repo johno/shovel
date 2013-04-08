@@ -40,7 +40,7 @@ module Categories
       elsif @grub.include? category
         Categories::Gertuko::GRUB
       else
-        1
+        Categories::Gertuko::ENTERTAINMENT
       end
     end
   end
