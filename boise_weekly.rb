@@ -2,6 +2,9 @@ require 'nokogiri'
 require 'mechanize'
 require 'open-uri'
 
+require './categories'
+require './event'
+
 module Shovel
   class BoiseWeekly
     
@@ -31,14 +34,13 @@ module Shovel
           event_params[:category] = strip_category listing
           event_params[:address] = strip_address listing
           event_params[:venue] = strip_venue listing
-          event_params[:phone] = strip_phone listing
           event_params[:bw_id] = strip_oid event_href
           event_params[:cost] = strip_cost listing
           event_params[:date] = strip_date listing
         end
         
-        unless event_params.blank?
-          events << Event.new event_params
+        unless event_params.keys.empty?
+          events << Event.new(event_params)
         end
       end
       
@@ -47,7 +49,7 @@ module Shovel
     
     def self.strip_oid event_href
       return if event_href.nil?
-      event_href['href'].split('?oid=').second.gsub(/\s+/, ' ').strip
+      event_href['href'].split('?oid=')[1].gsub(/\s+/, ' ').strip
     end
     
     def self.strip_date listing
@@ -68,8 +70,8 @@ module Shovel
     end
     
     def self.strip_venue listing
-      return if listing.nil?
-      listing.css('.listingLocation').css('a').first.text
+      return if listing.nil? or listing.search('.locationLabel').empty?
+      listing.search('.locationLabel').search.text
     end
     
     def self.strip_category listing
@@ -81,21 +83,9 @@ module Shovel
     def self.strip_address listing
       return if listing.nil?
       
-      address = listing.css('.listingLocation').text.split(')').second
-        .gsub(/\s+/, ' ').gsub(listing.css('.listingLocation').css('.locationRegion').text, '')
-        .strip
-        
-      address = address.split(' ')
-      address.pop  # Remove phone number.
-      address = address.join(' ') << " Boise, Idaho"
-    end
-    
-    def self.strip_phone listing
-      return if listing.nil?
-      
-      listing.css('.listingLocation').text.split(')').second
-        .gsub(/\s+/, ' ').gsub(listing.css('.listingLocation').css('.locationRegion').text, '')
-        .strip.split(' ').pop
+      address = listing.search('.descripTxt').first
+      address.search('.//span').remove
+      address.text.split(' ').first << " Idaho"
     end
     
     def self.strip_description listing
@@ -107,7 +97,7 @@ module Shovel
     
     def self.strip_cost listing
       return if listing.nil?
-      listing.css('p.descripTxt').text.gsub(/\s+/, ' ').strip.split(' ').pop.downcase
+      listing.css('.descripTxt')[1].text.gsub(/\s+/, ' ').strip.split(' ').pop.downcase
     end
   end
 end
