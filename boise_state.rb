@@ -25,7 +25,7 @@ module Shovel
         params[:bs_id] = params[:title].gsub(/\s+/, '')
         
         unless params.blank?
-          events << Event.new params
+          events << Event.new(params)
         end
       end
       
