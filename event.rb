@@ -1,5 +1,8 @@
+require 'oj'
+
 class Event
   
+  attr_accessor :id
   attr_accessor :address 
   attr_accessor :bw_id
   attr_accessor :category
@@ -16,4 +19,10 @@ class Event
       send("#{key}=", value) if respond_to?("#{key}=")
     end
   end
+
+  def to_json
+    json_string = Oj::dump self
+    json_string.slice!  '"^o":"Event",'
+  end
+
 end

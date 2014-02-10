@@ -24,6 +24,13 @@ Shovel::BoiseWeekly.scrape :next_seven_days, param: '&page=3'
 Shovel::BoiseState.scrape
 ```
 
+##Requirements
+
+ - nokogiri
+ - mechanize
+ - open-uri
+ - oj  (https://github.com/ohler55/oj)
+
 ##Contributing
 
   1. Fork it
