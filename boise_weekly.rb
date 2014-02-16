@@ -38,7 +38,8 @@ module Shovel
           #event_params[:phone]        =  strip_phone listing
           event_params[:bw_id]        =  strip_oid event_href
           event_params[:cost]         =  strip_cost listing
-          event_params[:date]         =  strip_date listing
+          event_params[:date_raw]     =  strip_date listing
+          event_params[:date]         =  parse_date event_params[:date_raw]
         end
         
         unless event_params.keys.empty?
@@ -77,6 +78,17 @@ module Shovel
       #all_stuff.slice!  phone_stuff_we_dont_want
       all_stuff.slice!   /[()0-9.\s\-]{7,}.*/m
       all_stuff
+    end
+
+    def self.parse_date date_str
+      date_str.gsub! ".", ""
+      begin
+        # TODO  Does not yet parse "Sat., Feb. 15, 12-4 p.m"
+        time = DateTime.strptime(date_str, "%a, %b %e, %l %P").strftime("%s")
+      rescue
+        time = ""
+      end
+      time
     end
     
     def self.strip_venue listing
