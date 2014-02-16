@@ -38,7 +38,8 @@ module Shovel
           #event_params[:phone]        =  strip_phone listing
           event_params[:bw_id]        =  strip_oid event_href
           event_params[:cost]         =  strip_cost listing
-          event_params[:date]         =  strip_date listing
+          event_params[:date_raw]     =  strip_date listing
+          event_params[:date]         =  parse_date event_params[:date_raw]
         end
         
         unless event_params.keys.empty?
@@ -77,6 +78,30 @@ module Shovel
       #all_stuff.slice!  phone_stuff_we_dont_want
       all_stuff.slice!   /[()0-9.\s\-]{7,}.*/m
       all_stuff
+    end
+
+    def self.parse_date date_str
+      date_str = date_str.clone
+
+      date_str.gsub! ".",      ""  # delete dots: p.m --> pm  
+      date_str.gsub! /-[^ ]*/, ""  # delete periods: 3-5 pm --> 3 pm
+
+      # Change 9 pm to 9:0 pm without affecting 9:15 pm
+      date_str.gsub! /([0-9])(:([0-9]+))?( [ap]m)/, "\\1:0\\3\\4"
+      date_str.gsub! /:0([0-9]+)/, ":\\1"
+
+      begin
+        if date_str.match /[A-Za-z]+,? [0-9:]+ [ap]m/
+          # e.g., "Sundays, 1-1:30 p.m."
+          date_str.sub! /^([A-Za-z]+)+s,? /, "\\1, "
+          time = DateTime.strptime(date_str, "%a, %l:%M %P").strftime("%s")
+        else
+          time = DateTime.strptime(date_str, "%a, %b %e, %l:%M %P").strftime("%s")
+        end
+      rescue
+        time = ""
+      end
+      time
     end
     
     def self.strip_venue listing

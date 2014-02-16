@@ -11,6 +11,7 @@ class Event
   attr_accessor :title
   attr_accessor :venue
   attr_accessor :date
+  attr_accessor :date_raw
   attr_accessor :phone
   attr_accessor :bs_id 
   
