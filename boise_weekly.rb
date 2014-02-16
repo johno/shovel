@@ -81,10 +81,23 @@ module Shovel
     end
 
     def self.parse_date date_str
-      date_str.gsub! ".", ""
+      date_str = date_str.clone
+
+      date_str.gsub! ".",      ""  # delete dots: p.m --> pm  
+      date_str.gsub! /-[^ ]*/, ""  # delete periods: 3-5 pm --> 3 pm
+
+      # Change 9 pm to 9:0 pm without affecting 9:15 pm
+      date_str.gsub! /([0-9])(:([0-9]+))?( [ap]m)/, "\\1:0\\3\\4"
+      date_str.gsub! /:0([0-9]+)/, ":\\1"
+
       begin
-        # TODO  Does not yet parse "Sat., Feb. 15, 12-4 p.m"
-        time = DateTime.strptime(date_str, "%a, %b %e, %l %P").strftime("%s")
+        if date_str.match /[A-Za-z]+,? [0-9:]+ [ap]m/
+          # e.g., "Sundays, 1-1:30 p.m."
+          date_str.sub! /^([A-Za-z]+)+s,? /, "\\1, "
+          time = DateTime.strptime(date_str, "%a, %l:%M %P").strftime("%s")
+        else
+          time = DateTime.strptime(date_str, "%a, %b %e, %l:%M %P").strftime("%s")
+        end
       rescue
         time = ""
       end
