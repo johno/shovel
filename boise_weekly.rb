@@ -13,12 +13,13 @@ module Shovel
     def self.scrape options = {}
       events = []
       sub_url = case options[:when]
-                when :today then 'Today'
-                when :next_week then 'Next%207%20Days' 
-                when :this_weekend then 'This%20Weekend'
+                when 'today' then 'Today'
+                when 'next_week' then 'Next%207%20Days' 
+                when 'this_weekend' then 'This%20Weekend'
                 else 'Today'
                 end
       
+      $stderr.puts "Period: " + sub_url + "\n"  if options[:verbose]
       url = @base_url + sub_url
       url << '&neighborhood=939889'
       url << options[:param] if options[:param]
