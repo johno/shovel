@@ -14,6 +14,7 @@ class Event
   attr_accessor :date_raw
   attr_accessor :phone
   attr_accessor :bs_id 
+  attr_accessor :location
   
   def initialize(attributes = {})
     attributes.each do |key, value|

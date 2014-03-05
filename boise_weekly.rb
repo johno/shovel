@@ -31,16 +31,17 @@ module Shovel
         event_params = {}
         listing.css('h3').css('a').each do |event_href|
           next unless event_href['href'].include? 'Event?oid='
-          event_params[:title]        =  event_href.text.gsub(/\s+/, ' ').strip
-          event_params[:description]  =  strip_description listing
-          event_params[:category]     =  strip_category listing
-          event_params[:address]      =  strip_address listing
-          event_params[:venue]        =  strip_venue listing
+          event_params[:title]        = event_href.text.gsub(/\s+/, ' ').strip
+          event_params[:description]  = strip_description listing
+          event_params[:category]     = strip_category listing
+          event_params[:address]      = strip_address listing
+          event_params[:venue]        = strip_venue listing
           #event_params[:phone]        =  strip_phone listing
-          event_params[:bw_id]        =  strip_oid event_href
-          event_params[:cost]         =  strip_cost listing
-          event_params[:date_raw]     =  strip_date listing
-          event_params[:date]         =  parse_date event_params[:date_raw]
+          event_params[:location]     = strip_location listing
+          event_params[:bw_id]        = strip_oid event_href
+          event_params[:cost]         = strip_cost listing
+          event_params[:date_raw]     = strip_date listing
+          event_params[:date]         = parse_date event_params[:date_raw]
         end
         
         unless event_params.keys.empty?
@@ -122,6 +123,15 @@ module Shovel
       address = listing.search('.descripTxt').first
       address.search('.//span').remove
       address.text.split(' ').first << " Idaho"
+    end
+
+    def self.strip_location listing
+      return if listing.nil?
+
+      loc = listing.css('.descripTxt')
+      loc.search('.//span').remove
+      loc.search('.//a').remove
+      loc.text.split('(').first.gsub(/\s+/, ' ').strip
     end
     
     def self.strip_phone listing
